@@ -1,12 +1,20 @@
 package com.egg;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
         Connection connection = getConnection();
+        Statement st = connection.createStatement();
+        String sql = "SELECT nombre FROM producto";
+        try {
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                System.out.println(rs.getString("nombre"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al ejecutar la consulta: " + e.getMessage());
+        }
         closeConnection(connection);
     }
 
