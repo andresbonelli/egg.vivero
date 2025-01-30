@@ -5,20 +5,12 @@ import java.sql.*;
 public class App {
     public static void main(String[] args) throws Exception {
         Connection connection = getConnection();
-        Statement st = connection.createStatement();
-        String sql = "SELECT nombre FROM producto";
-        try {
-            ResultSet rs = st.executeQuery(sql);
-            while (rs.next()) {
-                System.out.println(rs.getString("nombre"));
-            }
-        } catch (SQLException e) {
-            System.out.println("Error al ejecutar la consulta: " + e.getMessage());
-        }
+        //buscarClientePorCodigo(connection, 9);
+        buscarClientesPorEmpleado(connection, 5);
         closeConnection(connection);
     }
 
-    public static Connection getConnection() {
+    private static Connection getConnection() {
         String host = "127.0.0.1"; // localhost
         String port = "3306"; // por defecto es el puerto que utiliza
         String name = "root"; // usuario de la base de datos
@@ -46,7 +38,70 @@ public class App {
         return connection;
     }
 
-    public static void closeConnection(Connection connection) {
+    private static void showClients(Connection connection) {
+        String sql = "SELECT id_cliente, nombre_contacto, apellido_contacto, telefono FROM cliente ";
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Integer id = rs.getInt("id_cliente");
+                String nombre = rs.getString("nombre_contacto");
+                String apellido = rs.getString("apellido_contacto");
+                String telefono = rs.getString("telefono");
+                System.out.println(id + " - " + nombre + " " + apellido + " -  " + telefono);
+            }
+            // Cerrar ResultSet y Statement dentro del bloque try-catch-finally
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+    }
+
+    private static void buscarClientePorCodigo(Connection connection, Integer clientCode) {
+        String sql = "SELECT * FROM cliente WHERE codigo_cliente = '" + clientCode + "'";
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Integer id = rs.getInt("id_cliente");
+                String nombreCliente = rs.getString("nombre_cliente");
+                System.out.println(id + " - " + nombreCliente);
+            }
+            // Cerrar ResultSet y Statement dentro del bloque try-catch-finally
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+    }
+
+     private static void buscarClientesPorEmpleado(Connection connection, Integer codigoEmpleado) {
+         String sql = String.format("""
+                                         SELECT c.id_cliente, c.nombre_cliente, e.nombre FROM cliente c
+                                         JOIN empleado e ON e.id_empleado = c.id_empleado
+                                         WHERE c.id_empleado + '%d'
+                                     """,
+                                     codigoEmpleado
+         );
+         try {
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql);
+             while (rs.next()) {
+                 Integer id = rs.getInt("id_cliente");
+                 String nombreCliente = rs.getString("nombre_cliente");
+                 String nombreEmpleado = rs.getString("nombre");
+                 System.out.println(id + " - " + nombreCliente + " - " + nombreEmpleado);
+             }
+             // Cerrar ResultSet y Statement dentro del bloque try-catch-finally
+             rs.close();
+             stmt.close();
+         } catch (SQLException e) {
+             System.out.println("Error en la consulta: " + e.getMessage());
+         }
+     }
+
+    private static void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
