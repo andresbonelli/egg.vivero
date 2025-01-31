@@ -6,7 +6,12 @@ public class App {
     public static void main(String[] args) throws Exception {
         Connection connection = getConnection();
         //buscarClientePorCodigo(connection, 9);
-        buscarClientesPorEmpleado(connection, 5);
+        //buscarClientesPorEmpleado(connection, 5);
+        //getProductListByGama(connection);
+        //getProductosNoComprados(connection);
+        //getPedidosPorProducto(connection,1);
+        //getPedidosPorFechas(connection, "2009-01-01", "2010-01-01");
+        getPedidosPorCliente(connection, 7);
         closeConnection(connection);
     }
 
@@ -99,6 +104,131 @@ public class App {
          } catch (SQLException e) {
              System.out.println("Error en la consulta: " + e.getMessage());
          }
+     }
+
+     public static void getProductListByGama(Connection connection) {
+        String sql = """
+                        SELECT SUM(p.id_producto) as cantidad, g.gama as nombre_gama
+                        FROM producto p
+                        JOIN gama_producto g ON g.id_gama = p.id_gama
+                        GROUP BY nombre_gama;
+                     """;
+        try(Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Integer cantidad = rs.getInt("cantidad");
+                String gama = rs.getString("nombre_gama");
+                System.out.println("Cantidad "+cantidad + " - " + "Gama "+gama);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+     }
+
+     private static void getProductosNoComprados(Connection connection) {
+        String sql = """
+                        SELECT p.nombre as nombre
+                        FROM producto p
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM detalle_pedido d WHERE d.id_producto = p.id_producto
+                        );
+                     """;
+         try(Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+             System.out.println("Productos No comprados: ");
+             while (rs.next()) {
+                 String nombre = rs.getString("nombre");
+                 System.out.println(nombre);
+             }
+         } catch (SQLException e) {
+             System.out.println("Error en la consulta: " + e.getMessage());
+         }
+     }
+
+     private static void getPedidosPorProducto(Connection connection, Integer idProducto) {
+        String sql = String.format("""
+                                        SELECT p.fecha_pedido, p.estado, p.comentarios
+                                        FROM pedido p
+                                        JOIN detalle_pedido d ON d.id_pedido = p.id_pedido
+                                        WHERE d.id_producto = '%d';
+                                     """,
+                                     idProducto
+        );
+        try(Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println("Pedidos por producto: ");
+            while (rs.next()) {
+                String fecha = rs.getString("fecha_pedido");
+                String estado = rs.getString("estado");
+                String comentarios = rs.getString("comentarios");
+                System.out.println(fecha + " - " + estado + " - " + comentarios);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+     }
+
+     private static void getPedidosPorFechas(Connection connection, String fechaInicio, String fechaFin) {
+        String sql = String.format("""
+                                        SELECT p.fecha_pedido, p.estado, p.comentarios
+                                        FROM pedido p
+                                        WHERE p.fecha_pedido BETWEEN '%s' AND '%s'
+                                        ORDER BY p.fecha_pedido DESC
+                                        LIMIT 100;
+                                     """,
+                                     fechaInicio,
+                                     fechaFin
+        );
+        try(Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.printf("Pedidos realizados entre %s y %s: ",fechaInicio,fechaFin);
+            while (rs.next()) {
+                String fecha = rs.getString("fecha_pedido");
+                String estado = rs.getString("estado");
+                String comentarios = rs.getString("comentarios");
+                System.out.println(fecha + " - " + estado + " - " + comentarios);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+     }
+
+     private static void getPedidosPorCliente(Connection connection, Integer idCliente) {
+        String sql2 = String.format("""
+                                        SELECT nombre_cliente FROM cliente WHERE id_cliente = '%d'
+                                     """,
+                                     idCliente
+        );
+        String sql = String.format("""
+                                        SELECT p.fecha_pedido, p.estado, p.comentarios
+                                        FROM pedido p
+                                        JOIN cliente c ON c.id_cliente = p.id_cliente
+                                        WHERE c.id_cliente = '%d'
+                                        ORDER BY p.fecha_pedido DESC
+                                        LIMIT 100;
+                                     """,
+                                     idCliente
+        );
+        try(Statement stmt2 = connection.createStatement();
+            ResultSet rs2 = stmt2.executeQuery(sql2)) {
+            while (rs2.next()) {
+                String nombre = rs2.getString("nombre_cliente");
+                System.out.println("Pedidos realizados por "+nombre+": ");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
+        try(Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String fecha = rs.getString("fecha_pedido");
+                String estado = rs.getString("estado");
+                String comentarios = rs.getString("comentarios");
+                System.out.println(fecha + " - " + estado + " - " + comentarios);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en la consulta: " + e.getMessage());
+        }
      }
 
     private static void closeConnection(Connection connection) {
