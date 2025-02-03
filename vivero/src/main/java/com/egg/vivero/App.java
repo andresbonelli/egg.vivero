@@ -1,20 +1,13 @@
-package com.egg;
+package com.egg.vivero;
 
 import java.sql.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        Connection connection = getConnection();
-        showClients(connection);
-        buscarClientePorCodigo(connection, 9);
-        buscarClientesPorEmpleado(connection, 5);
-        getProductListByGama(connection);
-        getProductosNoComprados(connection);
-        getPedidosPorProducto(connection,1);
-        getPedidosPorFechas(connection, "2009-01-01", "2010-01-01");
-        getPedidosPorCliente(connection, 7);
-        closeConnection(connection);
+
     }
+
+
 
     private static Connection getConnection() {
         String host = "127.0.0.1"; // localhost
