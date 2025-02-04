@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DAO {
+public abstract class DAO {
     protected Connection conexion = null;
     protected ResultSet resultSet = null;
     protected Statement statement = null;
@@ -29,7 +29,7 @@ public class DAO {
         }
     }
 
-    protected void desconectarDataBase() throws SQLException, ClassNotFoundException {
+    protected void desconectarDataBase() throws SQLException {
         try {
             if (resultSet != null) {
                 resultSet.close();
@@ -40,7 +40,7 @@ public class DAO {
             if (conexion != null) {
                 conexion.close();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw e;
         }

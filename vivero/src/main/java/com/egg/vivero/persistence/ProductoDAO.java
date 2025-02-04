@@ -2,8 +2,6 @@ package com.egg.vivero.persistence;
 
 import com.egg.vivero.entities.Producto;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +49,14 @@ public class ProductoDAO extends DAO{
         }
         desconectarDataBase();
         return productos;
+    }
+
+    public void eliminarProductoPorCodigo(String codigoProducto) throws Exception {
+        insertarModificarEliminarDataBase(
+                String.format(
+                        "DELETE FROM producto WHERE codigo_producto = '%s'",
+                        codigoProducto)
+        );
     }
 
 }

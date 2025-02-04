@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,5 +24,5 @@ public class Cliente {
     private String pais;
     private String codigoPostal;
     private int idEmpleado;
-    private double limiteCredito;
+    private Double limiteCredito;
 }

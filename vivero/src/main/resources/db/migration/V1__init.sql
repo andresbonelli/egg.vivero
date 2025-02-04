@@ -432,3 +432,9 @@ INSERT INTO pago VALUES (23,18,'PayPal','ak-std-000022','2009-01-13',8489);
 INSERT INTO pago VALUES (24,18,'PayPal','ak-std-000024','2009-01-16',7863);
 INSERT INTO pago VALUES (25,19,'PayPal','ak-std-000025','2007-10-06',3321);
 INSERT INTO pago VALUES (26,19,'PayPal','ak-std-000026','2006-05-26',1171);
+
+ALTER TABLE detalle_pedido
+ADD CONSTRAINT fk_detalle_pedido_producto
+FOREIGN KEY (id_producto)
+REFERENCES producto (id_producto)
+ON DELETE CASCADE;
