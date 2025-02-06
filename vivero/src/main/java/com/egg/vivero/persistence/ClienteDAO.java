@@ -60,7 +60,7 @@ public class ClienteDAO extends DAO{
         return clientes;
     }
 
-    public Cliente buscarClientePorCodigo(int codigo) throws Exception {
+    public Cliente buscarPorCodigo(int codigo) throws Exception {
         String sql = String.format("SELECT * FROM cliente WHERE codigo_cliente = '%d'", codigo);
         consultarDataBase(sql);
         Cliente cliente = new Cliente();
@@ -86,5 +86,62 @@ public class ClienteDAO extends DAO{
         String sql = String.format("DELETE FROM cliente WHERE codigo_cliente = '%d'", codigo);
         insertarModificarEliminarDataBase(sql);
         System.out.println("Cliente eliminado");
+    }
+
+    public Cliente buscarPorId(int idCliente) throws Exception {
+        String sql = String.format("SELECT * FROM cliente WHERE id_cliente = '%d'", idCliente);
+        consultarDataBase(sql);
+        Cliente cliente = new Cliente();
+        while (resultSet.next()) {
+            cliente.setIdCliente(resultSet.getInt("id_cliente"));
+            cliente.setCodigoCliente(resultSet.getInt("codigo_cliente"));
+            cliente.setNombreCliente(resultSet.getString("nombre_cliente"));
+            cliente.setNombreContacto(resultSet.getString("nombre_contacto"));
+            cliente.setApellidoContacto(resultSet.getString("apellido_contacto"));
+            cliente.setTelefono(resultSet.getString("telefono"));
+            cliente.setFax(resultSet.getString("fax"));
+            cliente.setCiudad(resultSet.getString("ciudad"));
+            cliente.setRegion(resultSet.getString("region"));
+            cliente.setPais(resultSet.getString("pais"));
+            cliente.setCodigoPostal(resultSet.getString("codigo_postal"));
+            cliente.setIdEmpleado(resultSet.getInt("id_empleado"));
+            cliente.setLimiteCredito(resultSet.getDouble("limite_credito"));
+        }
+        return cliente;
+    }
+
+    public void actualizar(Cliente cliente) throws Exception {
+        if (cliente == null) {
+            throw new IllegalArgumentException("El cliente no puede ser nulo");
+        }
+        String sql = String.format("""
+                UPDATE cliente SET
+                nombre_cliente = '%s',
+                nombre_contacto = '%s',
+                apellido_contacto = '%s',
+                telefono = '%s',
+                fax = '%s',
+                ciudad = '%s',
+                region = '%s',
+                pais = '%s',
+                codigo_postal = '%s',
+                id_empleado = '%d',
+                limite_credito = '%f'
+                WHERE id_cliente = '%d'""",
+                cliente.getNombreCliente(),
+                cliente.getNombreContacto(),
+                cliente.getApellidoContacto(),
+                cliente.getTelefono(),
+                cliente.getFax(),
+                cliente.getCiudad(),
+                cliente.getRegion(),
+                cliente.getPais(),
+                cliente.getCodigoPostal(),
+                cliente.getIdEmpleado(),
+                cliente.getLimiteCredito(),
+                cliente.getIdCliente()
+        );
+
+        insertarModificarEliminarDataBase(sql);
     }
 }
